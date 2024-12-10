@@ -15,8 +15,8 @@ Make sure you have the following installed on your machine before proceeding:
 Follow these steps to set up and run the project in development mode:
 
 ### 1. Clone the Repository
-```bash
-git clone <repository-url>
+
+git clone 
 cd Asset-management-backend
 
 2. Install Dependencies
@@ -25,7 +25,7 @@ Run the following command to install the necessary dependencies:
 
 npm install
 
-3. Set Up Environment Variables
+3. Set Up Environment Variables send you in email 
 
 Create a .env file in the root directory and configure the necessary environment variables. An example .env file:
 
