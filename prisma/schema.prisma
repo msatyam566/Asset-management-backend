@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  STAFF
+  SHOPOWNER
+}
+
+
+
+model User {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  role        Role     @default(STAFF)    // it can be user also after demo this user will become shopowner
+  email       String   @unique
+  name        String
+  password    String
+  mobile      String   @unique
+  isDeleted   Boolean  @default(false)
+  isVerified  Boolean  @default(false)
+  otp         String?
+  otpExpiresAt DateTime?
+  shopId      String?    @db.ObjectId
+  shop        Shop?    
+  tokens      Token[]
+  sales       Sales[]  // Relation to Sales
+
+  
+}
+
+model Shop {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  ownerId   String    @unique @db.ObjectId // Marked as unique for a one-to-one relation
+  owner     User      @relation(fields: [ownerId], references: [id]) // Defined here as the owner
+  products  Product[]
+  category Category[]
+  sales     Sales[]   // Relation to Sales
+  invoice Invoice[]
+  createdAt DateTime  @default(now())
+}
+
+model Token {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String   @db.ObjectId
+  token        String   @unique
+  refreshToken String   @unique
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+  user         User     @relation(fields: [userId], references: [id])
+}
+
+model Product {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  productName   String
+  quantity      Int
+  description   String
+  tax           String
+  price         Float
+  totalPrice    Float
+  barCode       String?
+  createdAt     DateTime  @default(now())
+  productImage String?
+  productDetails ProductDetail[]
+  sales         Sales[] 
+  createdById   String    @db.ObjectId
+  createdBy     Shop      @relation(fields: [createdById], references: [id])
+  categoryId    String    @db.ObjectId   // Add this field
+  category      Category  @relation(fields: [categoryId], references: [id]) // Define the relation
+}
+
+model Category {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  categoryName String
+  description  String
+  createdById   String?    @db.ObjectId
+  createdBy     Shop?      @relation(fields: [createdById], references: [id])
+  products  Product[] // Define the one-to-many relationship
+
+}
+
+
+model Customer{
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+  phone String
+}
+
+model Invoice{
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  invoiceNumber String @unique
+  invoiceDate    DateTime
+  totalTaxAmount Float
+  totalAmount Float
+  productDetails  ProductDetail[]  // Relation to ProductDetail for sold products
+  shopId          String    @db.ObjectId  // Relation field for Shop
+  shop            Shop      @relation(fields: [shopId], references: [id])
+
+}
+
+model ProductDetail {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId   String   @db.ObjectId  // Reference to the Product
+  product     Product  @relation(fields: [productId], references: [id])
+  quantity    Int      // Quantity of the product sold
+  price       Float    // Price of the product at the time of sale
+  totalPrice  Float    // Total price for this product (price * quantity)
+  invoiceId   String   @db.ObjectId  // Reference to the Invoice
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id])
+}
+
+
+model Sales {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  productId    String    @db.ObjectId
+  product      Product   @relation(fields: [productId], references: [id])
+  shopId       String    @db.ObjectId
+  shop         Shop      @relation(fields: [shopId], references: [id])
+  userId       String    @db.ObjectId
+  user         User      @relation(fields: [userId], references: [id]) // Staff who made the sale
+  quantity     Int
+  totalAmount  Float
+  saleDate     DateTime  @default(now())
+}
