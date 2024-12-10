@@ -39,7 +39,7 @@ export const getProductByStaff = async (req: Request, res: Response) => {
       .json({ productDetails: getProducts, totalCount: getProducts.length });
   } catch (error: any) {
     console.log(error.message);
-    res.status(500).json({ message: "Error fetching categories", error });
+    res.status(500).json({ message: "Error fetching products", error });
     return error;
   }
 };
