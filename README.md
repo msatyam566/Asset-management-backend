@@ -55,12 +55,6 @@ npm run start:dev
 
 This command starts the server with hot-reloading enabled, suitable for development environments.
 
-7. API Documentation
-
-Once the server is running, access the API documentation (if implemented) at:
-
-http://localhost:<PORT>/docs
-
 Scripts
 
 npm run start:dev: Starts the project in development mode.
