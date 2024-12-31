@@ -91,7 +91,7 @@ export const deleteCategory = async (req: Request, res: Response) => {
   }
 };
 
-
+// Get catgory by staff
 export const getCategoriesByStaff = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;

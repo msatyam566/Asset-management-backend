@@ -1,9 +1,8 @@
 import { Router } from "express";
 import validateAccessToken from "../../middlewares/jwtValidation";
 import { roleCheck } from "../../middlewares/roleCheck";
-import { addUser } from "../../controllers/shopOwner/addStaff";
-import { getAllStaff } from "../../controllers/shopOwner/getAllStaff";
-import { deleteUser } from "../../controllers/shopOwner/deleteStaff";
+import { addUser,getAllStaff,deleteUser } from "../../controllers/shopOwner/staff";
+
 const router = Router();
 
 

@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import prisma from "../../../config/prismaClient";
-import multer from "../../../config/multerConfig";
 
 
 export const createProduct = async (req: Request, res: Response) => {

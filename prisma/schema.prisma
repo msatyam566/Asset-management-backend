@@ -23,7 +23,6 @@ model User {
   password    String
   mobile      String   @unique
   isDeleted   Boolean  @default(false)
-  isVerified  Boolean  @default(false)
   otp         String?
   otpExpiresAt DateTime?
   shopId      String?    @db.ObjectId

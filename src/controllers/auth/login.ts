@@ -1,12 +1,8 @@
 import bcrypt from "bcrypt";
 import { Request, Response, NextFunction } from "express";
 import prisma from "../../config/prismaClient";
-import {
-  generateAccessToken,
-  generateRefreshToken,
-} from "../../services/generateToken";
 import { loginValidation } from "../../services/validationSchema";
-const config = require("../../config/keys");
+import { generateOTP, sendEmail } from "../../services/sendEmail";
 
 export const loginUser = async (req: Request, res: Response) => {
   try {
@@ -24,14 +20,6 @@ export const loginUser = async (req: Request, res: Response) => {
       });
     }
 
-    // Ensure the isVerfieid value is not null
-    if (userLogin.isVerified === false) {
-      return res.status(403).send({
-        status: false,
-        message: "Please verify your email with OTP before logging in.",
-      });
-    }
-
     // Check if the provided password matches the stored hashed password
     const isMatch = await bcrypt.compare(password, userLogin.password);
 
@@ -41,57 +29,27 @@ export const loginUser = async (req: Request, res: Response) => {
         message: "Incorrect password. Please try again.",
       });
     }
+    // Generate a 6-digit OTP
+    const otp = generateOTP();
 
-    // Prepare payload for the token
-    const payload = {
-      role: userLogin.role,
-      email: userLogin.email,
-      _id: userLogin.id, // Ensure `id` matches your Prisma schema field
-    };
+    // Set OTP expiration time (5 minutes)
+    const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
-    // Generate tokens
-    const accessToken = generateAccessToken(
-      payload,
-      config.default.jwt.accessTokenLife
-    );
-    const refreshToken = generateRefreshToken(
-      payload,
-      config.default.jwt.refreshTokenLife
-    );
-
-    if (!accessToken || !refreshToken) {
-      return res.status(500).json({
-        status: false,
-        message: "Unable to generate tokens. Please try again later.",
-      });
-    }
-
-    // Ensure tokens are strings
-    if (typeof accessToken !== "string" || typeof refreshToken !== "string") {
-      return res.status(500).json({
-        status: false,
-        message: "Unable to generate tokens. Please try again later.",
-      });
-    }
-
-    // Save the tokens in the database
-    await prisma.token.create({
-      data: {
-        userId: userLogin.id,
-        token: accessToken,
-        refreshToken: refreshToken,
-        expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // Adjust expiry as needed
-      },
+    // Update user with OTP and expiration time
+    await prisma.user.update({
+      where: { email },
+      data: { otp, otpExpiresAt },
     });
 
-    // Store the refresh token in a cookie
-    res.cookie("auth", refreshToken, { httpOnly: true });
+    // Send the OTP to the user's email
+    await sendEmail(email, otp);
+   
 
     // Respond with the access token and payload
     res.status(200).json({
       success: true,
-      accessToken,
-      payload: payload,
+      message: "OTP sent to your email. Please verify to proceed.",
+
     });
   } catch (error: any) {
     res.status(422).json({
@@ -102,3 +60,5 @@ export const loginUser = async (req: Request, res: Response) => {
     return error;
   }
 };
+
+

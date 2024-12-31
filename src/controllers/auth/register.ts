@@ -46,7 +46,6 @@ export const registerUser = async (
         mobile:mobileString,
         role:role,
         isDeleted: false,
-        isVerified: false,
       },
     });
 
