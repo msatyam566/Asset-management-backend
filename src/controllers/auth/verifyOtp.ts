@@ -19,7 +19,7 @@ export const verifyOtp = async (req: Request, res: Response) => {
       !user.otpExpiresAt || // Check if otpExpiresAt is null
       new Date() > user.otpExpiresAt
     ) {
-      return res.status(400).json({ error: "Invalid or expired OTP." });
+      return res.status(400).json({ error: "Invalid or expired OTP. Please check your registered email for otp" });
     }
 
     await prisma.user.update({
@@ -32,7 +32,9 @@ export const verifyOtp = async (req: Request, res: Response) => {
       role: user.role,
       email: user.email,
       _id: user.id, // Ensure `id` matches your Prisma schema field
+      shopId :user.shopId || null
     };
+
 
     // Generate tokens
     const accessToken = generateAccessToken(
@@ -65,10 +67,10 @@ export const verifyOtp = async (req: Request, res: Response) => {
         userId: user.id,
         token: accessToken,
         refreshToken: refreshToken,
+        shopId :user.shopId || null,
         expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // Adjust expiry as needed
       },
     });
-
 
 
      // Store the refresh token in a cookie

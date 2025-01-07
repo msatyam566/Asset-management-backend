@@ -62,12 +62,10 @@ export const registerUser = async (
       },
     });
   } catch (error:any) {
-    console.log(error)
-    res.status(422).json({
-        status: false,
-        message: "Validation Error",
-        details: error.details,
-      });
+    res.json({
+      status: false,
+      data: error,
+    });
     return error;
   }
 };

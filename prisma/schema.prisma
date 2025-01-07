@@ -15,6 +15,8 @@ enum Role {
 
 
 
+
+
 model User {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   role        Role     @default(STAFF)    // it can be user also after demo this user will become shopowner
@@ -26,6 +28,8 @@ model User {
   otp         String?
   otpExpiresAt DateTime?
   shopId      String?    @db.ObjectId
+  monthlyTarget  Float     @default(0.0) // Sales target for the staff
+  totalSales     Float     @default(0.0)
   shop        Shop?    
   tokens      Token[]
   sales       Sales[]  // Relation to Sales
@@ -42,22 +46,26 @@ model Shop {
   category Category[]
   sales     Sales[]   // Relation to Sales
   invoice Invoice[]
+  token Token[]
   createdAt DateTime  @default(now())
 }
 
 model Token {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   userId       String   @db.ObjectId
+  shopId       String?   @db.ObjectId
   token        String   @unique
   refreshToken String   @unique
   createdAt    DateTime @default(now())
   expiresAt    DateTime
   user         User     @relation(fields: [userId], references: [id])
+  shop         Shop?     @relation(fields: [shopId], references: [id])
 }
 
 model Product {
   id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  productName   String
+  sku String @unique
+  name   String
   quantity      Int
   description   String
   tax           String
@@ -76,7 +84,7 @@ model Product {
 
 model Category {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  categoryName String
+  name String
   description  String
   createdById   String?    @db.ObjectId
   createdBy     Shop?      @relation(fields: [createdById], references: [id])
@@ -84,24 +92,43 @@ model Category {
 
 }
 
-
-model Customer{
+model Payment {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  name String
-  phone String
+  paymentMethod String
+  paymentStatus Boolean @default(false)
+  paymentDate  DateTime  @default(now())
+  amount       Float
+  invoice Invoice[]
+
 }
+
+
 
 model Invoice{
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   invoiceNumber String @unique
   invoiceDate    DateTime
-  totalTaxAmount Float
   totalAmount Float
   productDetails  ProductDetail[]  // Relation to ProductDetail for sold products
   shopId          String    @db.ObjectId  // Relation field for Shop
   shop            Shop      @relation(fields: [shopId], references: [id])
-
+  createdAt DateTime  @default(now())
+  payment        Payment?        @relation(fields: [paymentId], references: [id])
+  paymentId      String?         @db.ObjectId
+  customerId    String       @db.ObjectId
+  customer      Customer     @relation(fields: [customerId], references: [id]) // New relation to Customer
 }
+
+
+model Customer {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  phone        String    @unique
+  totalSpent  Float    @default(0.0)
+  invoices     Invoice[] // Relation to the invoices generated for this customer
+  createdAt    DateTime  @default(now())
+}
+
 
 model ProductDetail {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId

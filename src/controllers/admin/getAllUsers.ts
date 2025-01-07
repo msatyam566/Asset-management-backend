@@ -32,7 +32,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
     });
     
 
-    return res.status(200).json({data: users, totalCount: users.length});
+    return res.status(200).json({message:"Users fetched successfully",data: users, totalCount: users.length});
   } catch (error: any) {
      res.status(500).json({ message: "An error occurred while fetching users." });
      return error
