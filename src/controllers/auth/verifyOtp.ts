@@ -19,22 +19,32 @@ export const verifyOtp = async (req: Request, res: Response) => {
       !user.otpExpiresAt || // Check if otpExpiresAt is null
       new Date() > user.otpExpiresAt
     ) {
-      return res.status(400).json({ error: "Invalid or expired OTP. Please check your registered email for otp" });
+      return res.status(400).json({
+        error:
+          "Invalid or expired OTP. Please check your registered email for otp",
+      });
     }
 
+    // Clear the existing OTP and expiration
     await prisma.user.update({
       where: { email },
       data: { otp: null, otpExpiresAt: null },
     });
 
-    // // Prepare payload for the token
+    // Delete any existing tokens for the user
+    await prisma.token.deleteMany({
+      where: {
+        userId: user.id,
+      },
+    });
+
+    // Prepare payload for the token
     const payload = {
       role: user.role,
       email: user.email,
       _id: user.id, // Ensure `id` matches your Prisma schema field
-      shopId :user.shopId || null
+      shopId: user.shopId || null,
     };
-
 
     // Generate tokens
     const accessToken = generateAccessToken(
@@ -67,21 +77,20 @@ export const verifyOtp = async (req: Request, res: Response) => {
         userId: user.id,
         token: accessToken,
         refreshToken: refreshToken,
-        shopId :user.shopId || null,
+        shopId: user.shopId || null,
         expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // Adjust expiry as needed
       },
     });
 
+    // Store the refresh token in a cookie
+    res.cookie("auth", refreshToken, { httpOnly: true });
 
-     // Store the refresh token in a cookie
-     res.cookie("auth", refreshToken, { httpOnly: true });
-
-     // Respond with the access token and payload
-     res.status(200).json({
-       success: true,
-       accessToken,
-       payload: payload,
-     });
+    // Respond with the access token and payload
+    res.status(200).json({
+      success: true,
+      accessToken,
+      payload: payload,
+    });
   } catch (error: any) {
     res.status(500).json(error);
     return error;

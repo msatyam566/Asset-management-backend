@@ -113,6 +113,7 @@ export const handleCheckout = async (req: Request, res: Response) => {
         // Create a sales record for the product
         await prisma.sales.create({
           data: {
+            salesNumber :`SAL-${Date.now()}`,
             productId: product.productId as string,
             shopId: shopId as string,
             userId: userId as string,

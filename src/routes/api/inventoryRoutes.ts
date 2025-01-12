@@ -5,6 +5,9 @@ import validateAccessToken from "../../middlewares/jwtValidation";
 import { getProducts } from "../../controllers/inventory/product/getProduct";
 import { deleteProduct } from "../../controllers/inventory/product/deleteProduct";
 import upload from "../../config/multerConfig"
+import { getProductById } from "../../controllers/inventory/product/getProductById";
+import { updateProduct } from "../../controllers/inventory/product/updateProduct";
+import { addStockQuantity } from "../../controllers/inventory/product/addStockQuantity";
 const router = Router();
 
 
@@ -19,7 +22,10 @@ router.delete('/category/:id',validateAccessToken,deleteCategory)
 
 
 // product routes
-router.post('/product',validateAccessToken, upload.single("productImages"), createProduct)
+router.post('/product',validateAccessToken, upload.array("productImages"), createProduct)
+router.post("/product/stock/:id",validateAccessToken,addStockQuantity )
+router.put('/product/:id',validateAccessToken, upload.array("productImages"), updateProduct)
+router.get('/product/:id',validateAccessToken, getProductById)
 router.get('/product',validateAccessToken,getProducts)
 router.delete('/product/:id',validateAccessToken,deleteProduct)
 

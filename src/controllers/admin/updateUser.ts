@@ -5,7 +5,7 @@ import prisma from "../../config/prismaClient";
 
 export const updateUser = async (req: Request, res: Response) => {
     try {
-      const { name, email, mobile, role } = req.body;
+      const { name, email, mobile, role,monthlyTarget } = req.body;
       const userId = req.params.id;
   
       // Validate input
@@ -29,6 +29,7 @@ export const updateUser = async (req: Request, res: Response) => {
           name: name || user.name,
           email: email || user.email,
           mobile: mobile || user.mobile,
+          monthlyTarget:monthlyTarget || user.monthlyTarget,
           role: role || user.role,
         },
       });

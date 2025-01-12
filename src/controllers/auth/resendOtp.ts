@@ -1,7 +1,7 @@
 import prisma from "../../config/prismaClient";
 import { Request, Response } from "express";
 import { generateOTP, sendEmail } from "../../services/sendEmail";
-export const generateOtp = async (req: Request, res: Response) => {
+export const resendOtp = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
 

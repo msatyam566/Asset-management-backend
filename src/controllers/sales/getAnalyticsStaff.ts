@@ -1,17 +1,17 @@
 import { Request, Response } from "express";
 import prisma from "../../config/prismaClient";
 
-export const getSalesAnalytics = async (req: Request, res: Response) => {
+export const getAnalyticsStaff = async (req: Request, res: Response) => {
+  const shopId = req.user?.shopId;
+  const userId = req.user?.id;
+
+  if (!shopId) {
+    return res
+      .status(404)
+      .json({ message: "Shop not found kindly subscribe or associate a shop with your account" });
+  }
+
   try {
-    const userId = req.user?.id;
-    const shopId = req.user?.shopId;
-
-    if (!userId || !shopId) {
-      return res
-        .status(400)
-        .json({ message: "Invalid request. User or shop not found." });
-    }
-
     const currentDate = new Date();
     const firstDayOfMonth = new Date(
       currentDate.getFullYear(),
@@ -33,7 +33,7 @@ export const getSalesAnalytics = async (req: Request, res: Response) => {
         monthlyTarget: true,
       },
     });
-    const getMonthlyTarget = userTarget?.monthlyTarget
+    const getMonthlyTarget = userTarget?.monthlyTarget;
 
     // Fetch monthly sales by the staff
     const monthlySales = await prisma.sales.aggregate({
@@ -47,7 +47,12 @@ export const getSalesAnalytics = async (req: Request, res: Response) => {
     // Count new users created this month
     const newUsersThisMonth = await prisma.customer.count({
       where: {
-        createdAt: { gte: firstDayOfMonth },
+        invoices: {
+          some: {
+            shopId: shopId,
+            createdAt: { gte: firstDayOfMonth },
+          },
+        },
       },
     });
 
@@ -57,7 +62,15 @@ export const getSalesAnalytics = async (req: Request, res: Response) => {
     });
 
     // Count total users till now
-    const totalUsers = await prisma.customer.count();
+    const totalUsers = await prisma.customer.count({
+      where: {
+        invoices: {
+          some: {
+            shopId: shopId,
+          },
+        },
+      },
+    });
 
     // Return analytics data
     return res.status(200).json({
@@ -68,7 +81,7 @@ export const getSalesAnalytics = async (req: Request, res: Response) => {
         newUsersThisMonth,
         totalOrders,
         totalUsers,
-        getMonthlyTarget
+        getMonthlyTarget,
       },
     });
   } catch (error: any) {

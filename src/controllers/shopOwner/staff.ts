@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import prisma from "../../config/prismaClient";
-import { registerValidation } from "../../services/validationSchema";
 
 export const addUser = async (req: Request, res: Response) => {
   try {
@@ -78,6 +77,7 @@ export const addUser = async (req: Request, res: Response) => {
 export const deleteUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    console.log(id)
 
     await prisma.user.delete({
       where: { id },
@@ -128,6 +128,9 @@ export const getAllStaff = async (req: Request, res: Response) => {
         role:'STAFF'
       },
     });
+    if(users.length ===0){
+      return res.status(404).json({ message: "Users not found." });
+    }
 
     return res.status(200).json({ data: users, totalCount: users.length });
   } catch (error: any) {

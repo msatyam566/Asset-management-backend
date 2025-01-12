@@ -4,7 +4,7 @@ import prisma from "../../config/prismaClient";
 // Soft Delete User API
 export const deleteUser = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params; 
+    const { id } = req.params;
 
     // Validate input
     if (!id) {
@@ -20,10 +20,15 @@ export const deleteUser = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "User not found." });
     }
 
-    // Check if the user is already deleted
-    if (user.isDeleted) {
-      return res.status(400).json({ message: "User is already deleted." });
-    }
+    if (user.role === "SHOPOWNER" && user.shopId) {
+  
+        await prisma.shop.delete({
+          where: {
+            id: user?.shopId,
+          },
+        });
+
+    } 
 
     // Soft delete the user by setting isDeleted to true
     const updatedUser = await prisma.user.update({
@@ -35,9 +40,11 @@ export const deleteUser = async (req: Request, res: Response) => {
       message: "User deleted successfully.",
       user: updatedUser,
     });
-  } catch (error:any) {
+  } catch (error: any) {
     console.error("Error during user soft delete:", error);
-    res.status(500).json({ message: "An error occurred while deleting the user." });
+    res
+      .status(500)
+      .json({ message: "An error occurred while deleting the user." });
     return error;
   }
 };

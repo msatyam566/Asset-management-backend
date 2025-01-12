@@ -19,18 +19,18 @@ export const registerUser = async (
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: "User already exists. Please login.",
+        message: "Email already exists. Please login.",
       });
     }
 
     const existingUserPhone = await prisma.user.findUnique({
-      where: { email },
+      where: { mobile:mobileString },
     });
 
     if (existingUserPhone) {
       return res.status(400).json({
         success: false,
-        message: "User already exists. Please login.",
+        message: "Mobile number already exists. Please login.",
       });
     }
 

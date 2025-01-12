@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../../config/prismaClient";
 
-export const getShopOwnerAnalytics = async (req: Request, res: Response) => {
+export const getAnalyticsShop = async (req: Request, res: Response) => {
   try {
     const shopId = req.user?.shopId;
 
@@ -33,19 +33,31 @@ export const getShopOwnerAnalytics = async (req: Request, res: Response) => {
     // New Customers This Month
     const newCustomersThisMonth = await prisma.customer.count({
       where: {
-        createdAt: {
-          gte: new Date(`${currentYear}-${currentMonth}-01`),
-          lt: new Date(`${currentYear}-${currentMonth + 1}-01`),
-        },
+        invoices:{
+          some:{
+            shopId:shopId,
+            createdAt: {
+              gte: new Date(`${currentYear}-${currentMonth}-01`),
+              lt: new Date(`${currentYear}-${currentMonth + 1}-01`),
+            },
+          }
+        }
+       
       },
     });
 
     // Total Customers
-    const totalCustomers = await prisma.customer.count();
+    const totalCustomers = await prisma.customer.count({
+      where: { invoices:{
+        some:{
+          shopId:shopId
+        }
+      }},
+    });
 
     // Response Data
     return res.status(200).json({
-      message: "Shop owner analytics fetched successfully",
+      message: "Shop analytics fetched successfully",
       data: {
         totalSalesRevenue: totalSalesRevenue._sum.totalAmount || 0,
         monthlySalesRevenue: monthlySalesRevenue._sum.totalAmount || 0,

@@ -5,11 +5,10 @@ import prisma from "../../../config/prismaClient";
 export const createCategory = async (req: Request, res: Response) => {
   try {
     const { name, description } = req.body;
-    const userId = req.user?.id
-
+    const shopId = req.user?.shopId;
 
     const findShop = await prisma.shop.findUnique({
-      where: { ownerId: userId },
+      where: { id: shopId },
     });
     if (!findShop) {
       return res.status(404).json({ message: "Shop not found" });
@@ -19,24 +18,34 @@ export const createCategory = async (req: Request, res: Response) => {
       data: {
         name,
         description,
-        createdById:findShop.id,
+        createdById: findShop.id,
       },
     });
 
     return res
       .status(201)
-      .json({ message: "Category added successfully", data:category });
+      .json({ message: "Category added successfully", data: category });
   } catch (error: any) {
     console.log(error.message);
-    res.status(500).json({ message: "Error creating category", error:error.message });
+    res
+      .status(500)
+      .json({ message: "Error creating category", error: error.message });
     return error;
   }
 };
 
 // Get All Categories by Product
 export const getCategories = async (req: Request, res: Response) => {
+  const shopId = req.user?.shopId;
+
+  if (!shopId) {
+    return res
+      .status(404)
+      .json({ message: "Shop not found kindly subscribe or associate a shop with your account" });
+  }
+
   try {
-    const shopId = req.user?.shopId;
+
 
     const findShop = await prisma.shop.findUnique({
       where: { id: shopId },
@@ -47,13 +56,20 @@ export const getCategories = async (req: Request, res: Response) => {
 
     const categories = await prisma.category.findMany({
       where: {
-        createdById:findShop.id,
+        createdById: findShop.id,
       },
     });
+    if (categories.length === 0) {
+      return res.status(404).json({ message: "Categories not found" });
+    }
 
     return res
       .status(200)
-      .json({message:"Categories fetched successfully ", data: categories, totalCount: categories.length });
+      .json({
+        message: "Categories fetched successfully ",
+        data: categories,
+        totalCount: categories.length,
+      });
   } catch (error: any) {
     console.log(error.message);
     res.status(500).json({ message: "Error fetching categories", error });
@@ -94,9 +110,8 @@ export const deleteCategory = async (req: Request, res: Response) => {
     });
 
     return res.status(200).json({ message: "Category deleted successfully" });
-  } catch (error:any) {
+  } catch (error: any) {
     res.status(500).json({ message: "Error deleting category", error });
     return error;
   }
 };
-

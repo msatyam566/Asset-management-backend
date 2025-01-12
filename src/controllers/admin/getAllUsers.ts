@@ -29,7 +29,15 @@ export const getAllUsers = async (req: Request, res: Response) => {
         ...queryOptions, 
         isDeleted: false, 
       },
+      include:{
+        shop:{
+          select:{
+            name:true
+          }
+        }
+      }
     });
+
     
 
     return res.status(200).json({message:"Users fetched successfully",data: users, totalCount: users.length});

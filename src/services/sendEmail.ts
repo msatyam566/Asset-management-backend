@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 const config = require("../config/keys");
 
 const sendEmail = async (email: string[], otp: any) => {
-console.log(email,otp)
+  console.log(email , otp)
   const transporter = nodemailer.createTransport({
     host: config.default.sendEmail.host, // SMTP server hostname
     port: 587, // port

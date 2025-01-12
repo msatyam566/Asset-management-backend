@@ -9,7 +9,7 @@ const router = Router();
 
 router.post('/add',validateAccessToken,roleCheck(["SHOPOWNER","ADMIN"]), addUser )
 router.get('/staff',validateAccessToken,roleCheck(["SHOPOWNER","ADMIN"]),getAllStaff )
-router.delete('/staff',validateAccessToken,roleCheck(["SHOPOWNER","ADMIN"]),deleteUser )
+router.delete('/staff/:id',validateAccessToken,roleCheck(["SHOPOWNER","ADMIN"]),deleteUser )
 
 
 

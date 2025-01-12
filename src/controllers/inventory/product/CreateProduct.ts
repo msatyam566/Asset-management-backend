@@ -28,31 +28,6 @@ export const createProduct = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid number format" });
     }
 
-    // Map the tax value from the request body to the corresponding Gst enum
-    let gstEnumValue: "GST_28" | "GST_18" | "GST_12" | "GST_20" | undefined;
-
-    switch (tax) {
-      case "18":
-        gstEnumValue = "GST_18";
-        break;
-      case "20":
-        gstEnumValue = "GST_20";
-        break;
-      case "12":
-        gstEnumValue = "GST_12";
-        break;
-      case "28":
-        gstEnumValue = "GST_28";
-        break;
-      default:
-        return res.status(400).json({ message: "Invalid GST rate" });
-    }
-
-    // If no valid GST rate was found, return an error
-    if (!gstEnumValue) {
-      return res.status(400).json({ message: "Invalid GST rate" });
-    }
-
     // Find the shop based on user ID
     const shop = await prisma.shop.findUnique({ where: { id: shopId } });
     if (!shop) {
@@ -61,9 +36,10 @@ export const createProduct = async (req: Request, res: Response) => {
 
     // Get the product image path from the file
 
-    const productImage = req.file
-      ? `${process.env.BACKEND_URL}${req.file.filename}`
-      : null;
+    const productImage = Array.isArray(req.files)
+    ? req.files.map((file) => `${process.env.BACKEND_URL}/${file.filename}`)
+    : [];
+    
 
     const sku = await generateSKU(name);
     await generateBarcode(sku);
@@ -74,7 +50,7 @@ export const createProduct = async (req: Request, res: Response) => {
         name,
         quantity: parsedQuantity,
         description,
-        tax: gstEnumValue, // Use the mapped enum value here
+        tax: tax,
         sku: sku,
         barCode: sku,
         price: parsedPrice,
