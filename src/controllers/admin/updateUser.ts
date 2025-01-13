@@ -8,6 +8,9 @@ export const updateUser = async (req: Request, res: Response) => {
       const { name, email, mobile, role,monthlyTarget } = req.body;
       const userId = req.params.id;
   
+
+      const monthlyTargetFloat = parseFloat(monthlyTarget);
+
       // Validate input
       if (!userId) {
         return res.status(400).json({ message: "User ID is required." });
@@ -29,7 +32,7 @@ export const updateUser = async (req: Request, res: Response) => {
           name: name || user.name,
           email: email || user.email,
           mobile: mobile || user.mobile,
-          monthlyTarget:monthlyTarget || user.monthlyTarget,
+          monthlyTarget:monthlyTargetFloat,
           role: role || user.role,
         },
       });

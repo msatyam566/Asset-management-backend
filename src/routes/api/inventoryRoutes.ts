@@ -22,9 +22,9 @@ router.delete('/category/:id',validateAccessToken,deleteCategory)
 
 
 // product routes
-router.post('/product',validateAccessToken, upload.array("productImages"), createProduct)
+router.post('/product',validateAccessToken, upload.single("productImage"), createProduct)
 router.post("/product/stock/:id",validateAccessToken,addStockQuantity )
-router.put('/product/:id',validateAccessToken, upload.array("productImages"), updateProduct)
+router.put('/product/:id',validateAccessToken, upload.single("productImage"), updateProduct)
 router.get('/product/:id',validateAccessToken, getProductById)
 router.get('/product',validateAccessToken,getProducts)
 router.delete('/product/:id',validateAccessToken,deleteProduct)

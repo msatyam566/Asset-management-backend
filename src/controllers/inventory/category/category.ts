@@ -41,12 +41,13 @@ export const getCategories = async (req: Request, res: Response) => {
   if (!shopId) {
     return res
       .status(404)
-      .json({ message: "Shop not found kindly subscribe or associate a shop with your account" });
+      .json({
+        message:
+          "Shop not found kindly subscribe or associate a shop with your account",
+      });
   }
 
   try {
-
-
     const findShop = await prisma.shop.findUnique({
       where: { id: shopId },
     });
@@ -63,13 +64,11 @@ export const getCategories = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Categories not found" });
     }
 
-    return res
-      .status(200)
-      .json({
-        message: "Categories fetched successfully ",
-        data: categories,
-        totalCount: categories.length,
-      });
+    return res.status(200).json({
+      message: "Categories fetched successfully ",
+      data: categories,
+      totalCount: categories.length,
+    });
   } catch (error: any) {
     console.log(error.message);
     res.status(500).json({ message: "Error fetching categories", error });
@@ -111,7 +110,16 @@ export const deleteCategory = async (req: Request, res: Response) => {
 
     return res.status(200).json({ message: "Category deleted successfully" });
   } catch (error: any) {
-    res.status(500).json({ message: "Error deleting category", error });
-    return error;
+    if (
+      error.code === "P2003" // Prisma error code for foreign key constraint
+    ) {
+      res.status(400).json({
+        error:
+          "Cannot delete category as it is associated with one or more products.",
+      });
+    } else {
+      res.status(500).json({ message: "Error deleting category", error });
+      return error;
+    }
   }
 };

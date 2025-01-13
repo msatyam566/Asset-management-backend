@@ -70,7 +70,7 @@ export const handleCheckout = async (req: Request, res: Response) => {
         productDetails: {
           create: productDetails.map((product: any) => ({
             productId: product.productId,
-            productName: product.name,
+            productName: product.productName,
             quantity: product.quantity,
             price: product.price,
             totalPrice: product.totalPrice,

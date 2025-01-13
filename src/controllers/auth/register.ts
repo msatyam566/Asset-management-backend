@@ -3,17 +3,15 @@ import bcrypt from "bcrypt";
 import prisma from "../../config/prismaClient"; // Adjust the import path to your Prisma instance
 import { registerValidation } from "../../services/validationSchema";
 
-export const registerUser = async (
-  req: Request,
-  res: Response,
-) => {
+export const registerUser = async (req: Request, res: Response) => {
   try {
-    const { name, email, password, mobile,role} = await registerValidation.validateAsync(req.body);
+    const { name, email, password, mobile, role } =
+      await registerValidation.validateAsync(req.body);
     const mobileString = mobile.toString();
 
     // Check if the user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
+    const existingUser = await prisma.user.findFirst({
+      where: { AND: [{ email: email }, { isDeleted: false }] },
     });
 
     if (existingUser) {
@@ -23,8 +21,8 @@ export const registerUser = async (
       });
     }
 
-    const existingUserPhone = await prisma.user.findUnique({
-      where: { mobile:mobileString },
+    const existingUserPhone = await prisma.user.findFirst({
+      where: { AND: [{ isDeleted: false }, { mobile: mobileString }] },
     });
 
     if (existingUserPhone) {
@@ -43,12 +41,11 @@ export const registerUser = async (
         name,
         email,
         password: hashedPassword,
-        mobile:mobileString,
-        role:role,
+        mobile: mobileString,
+        role: role,
         isDeleted: false,
       },
     });
-
 
     return res.status(201).json({
       success: true,
@@ -57,11 +54,11 @@ export const registerUser = async (
         id: newUser.id,
         name: newUser.name,
         email: newUser.email,
-        mobile:newUser.mobile,
+        mobile: newUser.mobile,
         role: newUser.role,
       },
     });
-  } catch (error:any) {
+  } catch (error: any) {
     res.json({
       status: false,
       data: error,

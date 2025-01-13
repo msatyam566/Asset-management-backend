@@ -14,7 +14,16 @@ export const deleteProduct = async (req: Request, res: Response) => {
 
     return res.status(200).json({ message: "Product deleted successfully" });
   } catch (error:any) {
+    if (
+      error.code === "P2003" // Prisma error code for foreign key constraint
+    ) {
+      res.status(400).json({
+        error:
+          "Cannot delete category as it is associated with one or more products.",
+      });
+    } else {
     res.status(500).json({ message: "Error deleting product", error });
     return error;
   }
+}
 };

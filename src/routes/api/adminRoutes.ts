@@ -11,7 +11,7 @@ import { getAnalyticsAdmin } from "../../controllers/admin/getAnalyticsAdmin";
 const router = Router();
 
 router.get("/", validateAccessToken,  roleCheck(["ADMIN"]),  getAllUsers);
-router.get("/", validateAccessToken,  roleCheck(["ADMIN"]), getAllshops );
+router.get("/shops", validateAccessToken,  roleCheck(["ADMIN"]), getAllshops );
 router.get("/analytics",validateAccessToken,roleCheck(["ADMIN"]),getAnalyticsAdmin);
 router.post("/shop", validateAccessToken,roleCheck(["ADMIN"]),  createShopOwner);
 router.put("/:id", validateAccessToken, updateUser);

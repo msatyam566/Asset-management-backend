@@ -36,9 +36,10 @@ export const createProduct = async (req: Request, res: Response) => {
 
     // Get the product image path from the file
 
-    const productImage = Array.isArray(req.files)
-    ? req.files.map((file) => `${process.env.BACKEND_URL}/${file.filename}`)
-    : [];
+    const productImage = req.file
+    ? `${process.env.BACKEND_URL}/${req.file.filename}`
+    : null;
+
     
 
     const sku = await generateSKU(name);

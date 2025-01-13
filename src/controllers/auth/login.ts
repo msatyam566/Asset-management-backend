@@ -9,8 +9,8 @@ export const loginUser = async (req: Request, res: Response) => {
     const { email, password } = await loginValidation.validateAsync(req.body);
 
     // Find the user in the database (can be employees or outlets in the same "User" table)
-    const userLogin = await prisma.user.findUnique({
-      where: { email },
+    const userLogin = await prisma.user.findFirst({
+      where: { AND: [{ email: email }, { isDeleted: false }] },
     });
 
     if (!userLogin) {
@@ -43,13 +43,11 @@ export const loginUser = async (req: Request, res: Response) => {
 
     // Send the OTP to the user's email
     await sendEmail(email, otp);
-   
 
     // Respond with the access token and payload
     res.status(200).json({
       success: true,
       message: "OTP sent to your email. Please verify to proceed.",
-
     });
   } catch (error: any) {
     res.status(422).json({
@@ -60,5 +58,3 @@ export const loginUser = async (req: Request, res: Response) => {
     return error;
   }
 };
-
-

@@ -7,9 +7,10 @@ export const updateProduct = async (req: Request, res: Response) => {
   try {
     // Get the product ID from the request parameters
     const { id } = req.params;
+    
 
     // Destructure the data from the request body
-    const { name, quantity, description, tax, price, totalPrice, categoryId } =
+    const { name, quantity, description, tax, price, totalPrice, categoryId,productImage } =
       req.body;
     const shopId = req.user?.shopId;
 
@@ -54,9 +55,10 @@ export const updateProduct = async (req: Request, res: Response) => {
     }
 
     // Get the product image path from the file (if provided)
-    const productImage = Array.isArray(req.files)
-    ? req.files.map((file) => `${process.env.BACKEND_URL}/${file.filename}`)
-    : [];
+    const productImagePath = req.file
+    ? `${process.env.BACKEND_URL}/${req.file.filename}`
+    : productImage || null;
+
     
     let updatedSku: string | undefined;
 
@@ -78,7 +80,7 @@ export const updateProduct = async (req: Request, res: Response) => {
         ...(parsedPrice !== undefined && { price: parsedPrice }),
         ...(parsedTotalPrice !== undefined && { totalPrice: parsedTotalPrice }),
         ...(categoryId && { categoryId }),
-        ...(productImage && { productImage }),
+        ...(productImagePath !== undefined && { productImage: productImagePath }),
       },
     });
 
