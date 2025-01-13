@@ -141,7 +141,7 @@ export const handleCheckout = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       message: "Checkout successful. Invoice generated successfully.",
-      invoice,
+      data:invoice,
     });
   } catch (error: any) {
     console.error(error.message);
