@@ -81,7 +81,7 @@ model Product {
   totalPrice    Float
   barCode       String?
   createdAt     DateTime  @default(now())
-  productImage  String[]
+  productImage  String?
   productDetails ProductDetail[]
   sales         Sales[] 
   createdById   String    @db.ObjectId
