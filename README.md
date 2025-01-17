@@ -1,6 +1,8 @@
 # Asset Management Backend
 
 This is the backend server for the Asset Management application, built with Node.js, TypeScript, Prisma, and Express.
+in this project i have three roles admin shopOwner and staff of that shop for each shopownwer, product invoice there will be a shop associated with that and staff also belong to that shop for further details you can check prisma folder for models i have added two step authentication in this project everytime user has to enter otp and then user can login  for better security This backend is design in a such way we can modify to add more components and variation in products ledger system borrow money and add retailer for the shop 
+in this project the checkout flow is like that user will first do payment then invoice will generate else no invoice or order will create because we have not provide borrow money system in this or credit note
 
 ## Prerequisites
 
